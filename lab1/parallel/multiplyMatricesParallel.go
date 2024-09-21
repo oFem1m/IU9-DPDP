@@ -24,20 +24,20 @@ func parallelMultiplyMatrices(A, B [][]int, n, workers int) [][]int {
 		C[i] = make([]int, n)
 	}
 
-	var wg sync.WaitGroup
+	var wg sync.WaitGroup // для ожидания завершения всех горутин
 
-	rowsPerWorker := n / workers
+	rowsPerWorker := n / workers // Количество строк, обрабатываемых каждой горутиной
 
 	for w := 0; w < workers; w++ {
-		startRow := w * rowsPerWorker
-		endRow := startRow + rowsPerWorker
+		startRow := w * rowsPerWorker      // Начальная строка для горутины
+		endRow := startRow + rowsPerWorker // Конечная строка для горутины
 		if w == workers-1 {
-			endRow = n
+			endRow = n // остальные строки
 		}
 
-		wg.Add(1)
+		wg.Add(1) // inc WaitGroup
 		go func(start, end int) {
-			defer wg.Done()
+			defer wg.Done() // dec WaitGroup после завершения горутины
 			for i := start; i < end; i++ {
 				for j := 0; j < n; j++ {
 					for k := 0; k < n; k++ {
@@ -48,7 +48,7 @@ func parallelMultiplyMatrices(A, B [][]int, n, workers int) [][]int {
 		}(startRow, endRow)
 	}
 
-	wg.Wait()
+	wg.Wait() // Ожидаем завершения всех горутин
 
 	return C
 }
@@ -56,7 +56,7 @@ func parallelMultiplyMatrices(A, B [][]int, n, workers int) [][]int {
 func main() {
 	n := 500
 
-	workers := 15
+	workers := 7
 
 	A := createMatrix(n)
 	B := createMatrix(n)
