@@ -41,21 +41,24 @@ func (p *Philosopher) dine(done *sync.WaitGroup, stop <-chan bool) {
 			// Размышление
 			p.act("думает", time.Duration(rand.Intn(1000))*time.Millisecond)
 
-			// Взять левую вилку
-			p.leftFork.Lock()
-			p.act("взял левую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
-
-			// Попробовать взять правую вилку
-			if !p.tryTakeRightFork() {
-				p.leftFork.Unlock()
-				p.act("не смог взять правую вилку, положил левую", time.Duration(rand.Intn(500))*time.Millisecond)
-				continue
+			if p.id%2 == 0 {
+				// Четные философы сначала берут правую вилку
+				p.rightFork.Lock()
+				p.act("взял правую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
+				p.leftFork.Lock()
+				p.act("взял левую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
+			} else {
+				// Нечетные философы сначала берут левую вилку
+				p.leftFork.Lock()
+				p.act("взял левую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
+				p.rightFork.Lock()
+				p.act("взял правую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
 			}
 
 			// Трапеза
 			p.act("ест", time.Duration(rand.Intn(1000))*time.Millisecond)
 
-			// Положить обе вилки
+			// Положить вилки
 			p.rightFork.Unlock()
 			p.leftFork.Unlock()
 			p.act("положил вилки", time.Duration(rand.Intn(500))*time.Millisecond)
@@ -63,23 +66,8 @@ func (p *Philosopher) dine(done *sync.WaitGroup, stop <-chan bool) {
 	}
 }
 
-// Попытка взять правую вилку
-func (p *Philosopher) tryTakeRightFork() bool {
-	locked := make(chan bool, 1)
-	go func() {
-		p.rightFork.Lock()
-		locked <- true
-	}()
-	select {
-	case success := <-locked:
-		return success
-	case <-time.After(50 * time.Millisecond): // Таймаут для ожидания правой вилки
-		return false
-	}
-}
-
 func main() {
-	const numPhilosophers = 5
+	const numPhilosophers = 8
 	const simulationTime = 10 * time.Second
 
 	// Создание вилок
