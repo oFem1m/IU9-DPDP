@@ -86,7 +86,7 @@ def test_arbitrary_solution(N, tau, epsilon):
 if __name__ == "__main__":
     total_start_time = time.time()
 
-    N = 100
+    N = 256
     epsilon = 0.0001
     tau = 0.1 / N
 
