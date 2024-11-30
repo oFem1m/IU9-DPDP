@@ -27,7 +27,7 @@ func (p *Philosopher) act(action string, duration time.Duration) {
 func (p *Philosopher) logState() {
 	p.logMutex.Lock()
 	defer p.logMutex.Unlock()
-	fmt.Printf("Философ %d: %s\n", p.id, p.state)
+	fmt.Printf("Person %d: %s\n", p.id, p.state)
 }
 
 // Жизненный цикл философа
@@ -39,36 +39,36 @@ func (p *Philosopher) dine(done *sync.WaitGroup, stop <-chan bool) {
 			return
 		default:
 			// Размышление
-			p.act("думает", time.Duration(rand.Intn(1000))*time.Millisecond)
+			p.act("thinking", time.Duration(rand.Intn(1000))*time.Millisecond)
 
 			if p.id%2 == 0 {
 				// Четные философы сначала берут правую вилку
 				p.rightFork.Lock()
-				p.act("взял правую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
+				p.act("get right fork", time.Duration(rand.Intn(500))*time.Millisecond)
 				p.leftFork.Lock()
-				p.act("взял левую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
+				p.act("get left fork", time.Duration(rand.Intn(500))*time.Millisecond)
 			} else {
 				// Нечетные философы сначала берут левую вилку
 				p.leftFork.Lock()
-				p.act("взял левую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
+				p.act("get left fork", time.Duration(rand.Intn(500))*time.Millisecond)
 				p.rightFork.Lock()
-				p.act("взял правую вилку", time.Duration(rand.Intn(500))*time.Millisecond)
+				p.act("get right fork", time.Duration(rand.Intn(500))*time.Millisecond)
 			}
 
 			// Трапеза
-			p.act("ест", time.Duration(rand.Intn(1000))*time.Millisecond)
+			p.act("meal", time.Duration(rand.Intn(1000))*time.Millisecond)
 
 			// Положить вилки
 			p.rightFork.Unlock()
 			p.leftFork.Unlock()
-			p.act("положил вилки", time.Duration(rand.Intn(500))*time.Millisecond)
+			p.act("put forks", time.Duration(rand.Intn(500))*time.Millisecond)
 		}
 	}
 }
 
 func main() {
-	const numPhilosophers = 8
-	const simulationTime = 10 * time.Second
+	const numPhilosophers = 5
+	const simulationTime = 2 * time.Second
 
 	// Создание вилок
 	forks := make([]*sync.Mutex, numPhilosophers)
@@ -105,5 +105,5 @@ func main() {
 	close(stop)
 	wg.Wait()
 
-	fmt.Println("Надумались и наелись")
+	fmt.Println("finish")
 }
